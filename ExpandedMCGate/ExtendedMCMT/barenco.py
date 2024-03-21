@@ -25,10 +25,8 @@ class Barenco(MCMT):
     
     def _build(self):
         """Define the MCMT gate."""
-        control_qubits = self.qubits[: self.num_ctrl_qubits]
-        target_qubits = self.qubits[
-            self.num_ctrl_qubits : self.num_ctrl_qubits + self.num_target_qubits
-        ]
+        control_qubits = self.qubits[:-self.num_ctrl_qubits-1:-1] # Most significant Qubits, and on reverse order
+        target_qubits = self.qubits[: self.num_target_qubits] # Least significant Qubits
 
         if len(control_qubits) == 2:
             self._2ctrl_version(control_qubits, target_qubits)

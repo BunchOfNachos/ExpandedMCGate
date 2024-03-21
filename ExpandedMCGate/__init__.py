@@ -1,2 +1,2 @@
-from circuit import ExtendedQuantumCircuit
+from .circuit import ExtendedQuantumCircuit
 from . import ExtendedMCMT
