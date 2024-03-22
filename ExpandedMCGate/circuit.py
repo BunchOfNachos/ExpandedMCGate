@@ -78,6 +78,8 @@ class ExtendedQuantumCircuit(QuantumCircuit):
             AttributeError: if no ancilla qubits are passed, but some are needed.
         """
         from qiskit.circuit.library.standard_gates.x import MCXGrayCode, MCXRecursive, MCXVChain
+        from qiskit.circuit.library import XGate
+        from .ExtendedMCMT import Barenco
 
         print("It has been modified")
 
@@ -88,12 +90,15 @@ class ExtendedQuantumCircuit(QuantumCircuit):
             "recursion": MCXRecursive(num_ctrl_qubits),
             "v-chain": MCXVChain(num_ctrl_qubits, False),
             "v-chain-dirty": MCXVChain(num_ctrl_qubits, dirty_ancillas=True),
+            # new methods introduced
+            "barenco": Barenco(XGate(), num_ctrl_qubits, 1),
             # outdated, previous names
             "advanced": MCXRecursive(num_ctrl_qubits),
             "basic": MCXVChain(num_ctrl_qubits, dirty_ancillas=False),
             "basic-dirty-ancilla": MCXVChain(num_ctrl_qubits, dirty_ancillas=True),
         }
 
+        new_implementations = ["barenco"]
 
         # check ancilla input
         if ancilla_qubits:
@@ -124,4 +129,10 @@ class ExtendedQuantumCircuit(QuantumCircuit):
         else:
             ancilla_qubits = []
 
-        return self.append(gate, control_qubits[:] + [target_qubit] + ancilla_qubits[:], [])
+        # Implementations done by Qiskit expect the target Qubit to be the most significant one.
+        # Mine expects the least significant one to be the target.
+        # I will make this distinction for now until I make a decision
+        if mode in new_implementations:
+            return self.append(gate, [target_qubit] + control_qubits[:] + ancilla_qubits[:], [])
+        else:
+            return self.append(gate, control_qubits[:] + [target_qubit] + ancilla_qubits[:], [])
