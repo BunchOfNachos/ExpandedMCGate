@@ -47,13 +47,13 @@ class Barenco(MCMT):
             target_qubits (QuantumRegister | list[circuit.Qubit]): List of Qubits that are targeted by the gate
         """
         for qubit in target_qubits:
-            self.append(self._get_V_instruction(), [control_qubits[1], qubit])
+            self.append(self._get_V_instruction(exponent=1/2), [control_qubits[1], qubit])
         self.cx(control_qubits[0], control_qubits[1])
         for qubit in target_qubits:
-            self.append(self._get_V_instruction(inverse=True), [control_qubits[1], qubit])
+            self.append(self._get_V_instruction(exponent=1/2, inverse=True), [control_qubits[1], qubit])
         self.cx(control_qubits[0], control_qubits[1])
         for qubit in target_qubits:
-            self.append(self._get_V_instruction(), [control_qubits[0], qubit])
+            self.append(self._get_V_instruction(exponent=1/2), [control_qubits[0], qubit])
     
     def _general_version(
             self,
@@ -120,13 +120,14 @@ class Barenco(MCMT):
             
             for target in target_qubits:
                 if parity:
-                    self.append(self._get_V_instruction(inverse=True), [control_qubits[idx], target])
+                    self.append(self._get_V_instruction(exponent=1/4, inverse=True), [control_qubits[idx], target])
                 else:
-                    self.append(self._get_V_instruction(), [control_qubits[idx], target])
+                    self.append(self._get_V_instruction(exponent=1/4), [control_qubits[idx], target])
 
 
     def _get_V_operator(
             self,
+            exponent: int,
             inverse: bool = False
         ) -> Operator:
         """Construct the matrix and operator for the V gate from the original gate matrix.
@@ -134,17 +135,19 @@ class Barenco(MCMT):
         V is defined as V^4 = U, U being the original gate that we want to control. 
 
         Args:
+            exponent (int): Exponent to apply to the original gate
             inverse (bool, optional): Whether or not to return the conjugate transpose of V. Defaults to False.
 
         Returns:
             Operator: Returns operator for the V gate
         """
-        V_matrix = self.gate.control(1).power(1/4).to_matrix()
+        V_matrix = self.gate.control(1).power(exponent).to_matrix()
         V_operator = Operator(V_matrix)
         return V_operator.conjugate().transpose() if inverse else V_operator
     
     def _get_V_instruction(
             self,
+            exponent: int,
             inverse: bool = False
         ) -> Operator:
         """Construct the matrix and instruction for the V gate from the original gate matrix.
@@ -152,12 +155,13 @@ class Barenco(MCMT):
         V is defined as V^4 = U, U being the original gate that we want to control. 
 
         Args:
+            exponent (int): Exponent to apply to the original gate
             inverse (bool, optional): Whether or not to return the inverse of V. Defaults to False.
 
         Returns:
             Operator: Returns instruction for the V gate
         """
-        V_matrix = self.gate.power(1/4).to_matrix()
+        V_matrix = self.gate.power(exponent).to_matrix()
         V_instruction = Operator(V_matrix).to_instruction().control(1)
         if inverse:
             V_instruction = V_instruction.inverse()
