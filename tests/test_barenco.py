@@ -3,6 +3,7 @@ import itertools
 from qiskit.circuit import library
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister, transpile
 from qiskit.providers.basic_provider import BasicSimulator
+from qiskit.quantum_info import Statevector
 from ..ExpandedMCGate.ExtendedMCMT import Barenco
 
 def all_subsets(set):
@@ -113,6 +114,32 @@ class Test_2ctrl_version(unittest.TestCase):
             # Check that we only have one result and that it is '0x0' or '0x3'
             self.assertEqual(len(result.data()['counts']), 1)
             self.assertIn(list(result.data()['counts'].keys())[0], ['0x0', '0x3'])
+    
+    def test_statevectors_are_equals(self):
+        """
+        Test that the final statevector of the circuit is the same as another circuit using
+        Qiskit already implemented multi-controlled gates.
+        """
+        # Preparing both circuits
+        barenco_qreg = QuantumRegister(3)
+        qiskit_qreg = QuantumRegister(3)
+
+        barenco_circ = QuantumCircuit(barenco_qreg)
+        qiskit_circ = QuantumCircuit(qiskit_qreg)
+
+        # Adding an H gate to the control Qubits
+        barenco_circ.h([1, 2])
+        qiskit_circ.h([1, 2])
+
+        # Adding the multi-controlled X gate
+        barenco_circ.append(self._2control_1target, barenco_qreg)
+        qiskit_circ.mcx([1, 2], 0)
+
+        # Checking that the statevectors of the circuits are the same
+        barenco_statevector = Statevector(barenco_circ)
+        qiskit_statevector = Statevector(qiskit_circ)
+
+        self.assertEqual(barenco_statevector, qiskit_statevector)
 
 
 class Test_general_version(unittest.TestCase):
@@ -215,6 +242,32 @@ class Test_general_version(unittest.TestCase):
             # Check that we only have one result and that it is '0x0' or '0x3'
             self.assertEqual(len(result.data()['counts']), 1)
             self.assertIn(list(result.data()['counts'].keys())[0], ['0x0', '0x3'])
+    
+    def test_statevectors_are_equals(self):
+        """
+        Test that the final statevector of the circuit is the same as another circuit using
+        Qiskit already implemented multi-controlled gates.
+        """
+        # Preparing both circuits
+        barenco_qreg = QuantumRegister(4)
+        qiskit_qreg = QuantumRegister(4)
+
+        barenco_circ = QuantumCircuit(barenco_qreg)
+        qiskit_circ = QuantumCircuit(qiskit_qreg)
+
+        # Adding an H gate to the control Qubits
+        barenco_circ.h([1, 2, 3])
+        qiskit_circ.h([1, 2, 3])
+
+        # Adding the multi-controlled X gate
+        barenco_circ.append(self._3control_1target, barenco_qreg)
+        qiskit_circ.mcx([1, 2, 3], 0)
+
+        # Checking that the statevectors of the circuits are the same
+        barenco_statevector = Statevector(barenco_circ)
+        qiskit_statevector = Statevector(qiskit_circ)
+
+        self.assertEqual(barenco_statevector, qiskit_statevector)
 
 
 if __name__ == '__main__':
