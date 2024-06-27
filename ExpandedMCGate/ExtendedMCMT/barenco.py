@@ -120,9 +120,9 @@ class Barenco(MCMT):
             
             for target in target_qubits:
                 if parity:
-                    self.append(self._get_V_instruction(exponent=1/4, inverse=True), [control_qubits[idx], target])
+                    self.append(self._get_V_instruction(exponent=1/2**(len(control_qubits)-1), inverse=True), [control_qubits[idx], target])
                 else:
-                    self.append(self._get_V_instruction(exponent=1/4), [control_qubits[idx], target])
+                    self.append(self._get_V_instruction(exponent=1/2**(len(control_qubits)-1)), [control_qubits[idx], target])
 
 
     def _get_V_operator(
@@ -132,7 +132,7 @@ class Barenco(MCMT):
         ) -> Operator:
         """Construct the matrix and operator for the V gate from the original gate matrix.
 
-        V is defined as V^4 = U, U being the original gate that we want to control. 
+        V is defined as V^2^(n-1) = U, U being the original gate that we want to control, and n the number of control qubits. 
 
         Args:
             exponent (int): Exponent to apply to the original gate
@@ -152,7 +152,7 @@ class Barenco(MCMT):
         ) -> Operator:
         """Construct the matrix and instruction for the V gate from the original gate matrix.
 
-        V is defined as V^4 = U, U being the original gate that we want to control. 
+        V is defined as V^2^(n-1) = U, U being the original gate that we want to control, and n the number of control qubits. 
 
         Args:
             exponent (int): Exponent to apply to the original gate
