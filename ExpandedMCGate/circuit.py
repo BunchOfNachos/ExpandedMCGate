@@ -81,8 +81,6 @@ class ExtendedQuantumCircuit(QuantumCircuit):
         from qiskit.circuit.library import XGate
         from .ExtendedMCMT import Barenco
 
-        print("It has been modified")
-
         num_ctrl_qubits = len(control_qubits)
 
         available_implementations = {
